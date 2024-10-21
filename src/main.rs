@@ -3,7 +3,7 @@ use image::{self, GenericImageView, ImageBuffer, Rgb};
 use std::cmp::Ordering;
 
 fn main() {
-    const THRESHHOLD: f32 = 127.0;
+    const THRESHHOLD: f32 = 20.0;
     let img_path = "image.jpg";
     let img = image::open(img_path).expect("Failed to open image");
 
@@ -27,20 +27,20 @@ fn main() {
             else {
                 if current_sort_buff.len() > 0{
                     current_sort_buff.sort_by(|a, b| comp_pixel(a, b));
-                    println!("appending {:?} pixels", current_sort_buff.len());
+                    // println!("appending {:?} pixels", current_sort_buff.len());
                     out_vec.append(&mut current_sort_buff);
                     
                 }
                 out_vec.push(row_clone[current_index]);
-                println!("Added single pixel");
+                // println!("Added single pixel");
             }
             current_index += 1;
         }
         current_sort_buff.sort_by(|a, b| comp_pixel(a, b));
-        println!("appending {:?} pixels", current_sort_buff.len());
+        // println!("appending {:?} pixels", current_sort_buff.len());
         out_vec.append(&mut current_sort_buff);
-        println!("Row size: {:?}", row_clone.len());
-        println!("Buffer size: {:?}", out_vec.len());
+        // println!("Row size: {:?}", row_clone.len());
+        // println!("Buffer size: {:?}", out_vec.len());
 
         // rowed.sort_by(|a, b| comp_pixel(a, b));
         // out_vec.append(&mut rowed);
