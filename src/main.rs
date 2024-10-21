@@ -1,5 +1,5 @@
-#![allow(unused_imports, unused_variables)]
-use image::{self, GenericImageView, ImageBuffer, Pixel, Rgb, Rgba};
+// #![allow(unused_imports, unused_variables)]
+use image::{self, GenericImageView, ImageBuffer, Rgb};
 use std::cmp::Ordering;
 
 fn main() {
@@ -17,10 +17,8 @@ fn main() {
     let rows = buffer.rows();
     for row in rows {
         let row_clone: Vec<Rgb<u8>> = row.clone().copied().collect();
-        let mut rowed: Vec<Rgb<u8>> = row.copied().collect();
+        let rowed: Vec<Rgb<u8>> = row.copied().collect();
         let mut current_index: usize = 0;
-        let mut first_above_index: usize = 0;
-        let mut last_pixel_below_threshhold = false;
         let mut current_sort_buff: Vec<Rgb<u8>> = vec![];
         for pixel in rowed {
             if luma_from_pixel(&pixel) > THRESHHOLD {
@@ -43,7 +41,7 @@ fn main() {
         out_vec.append(&mut current_sort_buff);
         println!("Row size: {:?}", row_clone.len());
         println!("Buffer size: {:?}", out_vec.len());
-        
+
         // rowed.sort_by(|a, b| comp_pixel(a, b));
         // out_vec.append(&mut rowed);
     }
