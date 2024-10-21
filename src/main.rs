@@ -23,13 +23,11 @@ fn main() {
         for pixel in rowed {
             if luma_from_pixel(&pixel) > THRESHHOLD {
                 current_sort_buff.push(pixel);
-            }
-            else {
-                if current_sort_buff.len() > 0{
+            } else {
+                if current_sort_buff.len() > 0 {
                     current_sort_buff.sort_by(|a, b| comp_pixel(a, b));
                     // println!("appending {:?} pixels", current_sort_buff.len());
                     out_vec.append(&mut current_sort_buff);
-                    
                 }
                 out_vec.push(row_clone[current_index]);
                 // println!("Added single pixel");
