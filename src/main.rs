@@ -16,9 +16,7 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
-    // let img_path = "image.jpg";
-    let img_path = args.input;
-    let img = image::open(img_path).expect("Failed to open image");
+    let img = image::open(args.input).expect("Failed to open image");
 
     let (width, height) = img.dimensions();
     let buffer = img.to_rgb8();
@@ -27,9 +25,7 @@ fn main() {
 
     let mut out_vec: Vec<Rgb<u8>> = Vec::new();
 
-    let rows = buffer.rows();
-
-    for row in rows {
+    for row in buffer.rows() {
         let row_clone: Vec<Rgb<u8>> = row.clone().copied().collect();
         let rowed: Vec<Rgb<u8>> = row.copied().collect();
         let mut current_index: usize = 0;
@@ -54,7 +50,7 @@ fn main() {
         *pixel = out_vec[i];
     }
 
-    out_buffer.save("output.png").expect("Failed to save image");
+    out_buffer.save(args.output).expect("Failed to save image");
 }
 
 fn comp_pixel(a: &Rgb<u8>, b: &Rgb<u8>) -> Ordering {
