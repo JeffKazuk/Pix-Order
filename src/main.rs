@@ -1,10 +1,23 @@
 // #![allow(unused_imports, unused_variables)]
 use image::{self, GenericImageView, ImageBuffer, Rgb};
 use std::cmp::Ordering;
+use clap::Parser;
+
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    #[arg(short, long, default_value = "20.0")]
+    threshold: f32,
+    #[arg(short, long, default_value = "image.jpg")]
+    input: String,
+    #[arg(short, long, default_value = "output.png")]
+    output: String,
+}
 
 fn main() {
-    const THRESHHOLD: f32 = 20.0;
-    let img_path = "image.jpg";
+    let args = Args::parse();
+    // let img_path = "image.jpg";
+    let img_path = args.input;
     let img = image::open(img_path).expect("Failed to open image");
 
     let (width, height) = img.dimensions();
@@ -15,33 +28,26 @@ fn main() {
     let mut out_vec: Vec<Rgb<u8>> = Vec::new();
 
     let rows = buffer.rows();
+
     for row in rows {
         let row_clone: Vec<Rgb<u8>> = row.clone().copied().collect();
         let rowed: Vec<Rgb<u8>> = row.copied().collect();
         let mut current_index: usize = 0;
         let mut current_sort_buff: Vec<Rgb<u8>> = vec![];
         for pixel in rowed {
-            if luma_from_pixel(&pixel) > THRESHHOLD {
+            if luma_from_pixel(&pixel) > args.threshold {
                 current_sort_buff.push(pixel);
             } else {
                 if current_sort_buff.len() > 0 {
                     current_sort_buff.sort_by(|a, b| comp_pixel(a, b));
-                    // println!("appending {:?} pixels", current_sort_buff.len());
                     out_vec.append(&mut current_sort_buff);
                 }
                 out_vec.push(row_clone[current_index]);
-                // println!("Added single pixel");
             }
             current_index += 1;
         }
         current_sort_buff.sort_by(|a, b| comp_pixel(a, b));
-        // println!("appending {:?} pixels", current_sort_buff.len());
         out_vec.append(&mut current_sort_buff);
-        // println!("Row size: {:?}", row_clone.len());
-        // println!("Buffer size: {:?}", out_vec.len());
-
-        // rowed.sort_by(|a, b| comp_pixel(a, b));
-        // out_vec.append(&mut rowed);
     }
 
     for (i, pixel) in out_buffer.pixels_mut().enumerate() {
@@ -63,6 +69,8 @@ fn comp_pixel(a: &Rgb<u8>, b: &Rgb<u8>) -> Ordering {
     }
 }
 
+// Simple function for evaluating each pixel for the purpose of sorting
+// could probably be done better
 fn luma_from_pixel(pixel: &Rgb<u8>) -> f32 {
     let r: f32 = pixel[0].into();
     let g: f32 = pixel[1].into();
