@@ -21,14 +21,14 @@ struct Args {
 #[derive(Clone, Copy)]
 // Simple reversible range
 struct DimRange {
-    max: i32,
-    current: i32,
+    max: u32,
+    current: u32,
     descend: bool,
 }
 // Allow the struct to be iterated over
 impl Iterator for DimRange {
     // Define the type of the object we're returning from the iterator
-    type Item = i32;
+    type Item = u32;
     // This is the general signature of the next function
     // This function has to be defined for the iterator trait
     fn next(&mut self) -> Option<Self::Item> {
@@ -67,12 +67,12 @@ fn main() {
     let x_iter: DimRange;
 
     y_iter = DimRange {
-        max: height as i32,
+        max: height,
         current: 0,
         descend: false,
     };
     x_iter = DimRange {
-        max: width as i32,
+        max: width,
         current: 0,
         descend: false,
     };
@@ -80,7 +80,7 @@ fn main() {
     for y in y_iter {
         let mut current_buffer: Vec<image::Rgba<u8>> = vec![];
         for x in x_iter {
-            let pixel = img.get_pixel(x as u32, y as u32);
+            let pixel = img.get_pixel(x, y);
             if luma_from_pixel(pixel) > args.threshold {
                 current_buffer.push(pixel);
             } else {
