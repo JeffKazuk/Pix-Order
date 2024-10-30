@@ -35,7 +35,7 @@ impl Iterator for DimRange {
         let current;
 
         if self.descend {
-            if self.current > 0 {
+            if self.current >= 0 {
                 current = self.current;
                 self.current -= 1;
                 return Some(current);
