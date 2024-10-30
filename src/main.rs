@@ -20,30 +20,30 @@ struct Args {
 //      loops results in a move error
 #[derive(Clone, Copy)]
 // Simple reversible range
-struct RR {
-    start: u32,
-    current: u32,
-    stop: u32,
+struct DimRange {
+    max: i32,
+    current: i32,
+    descend: bool,
 }
 // Allow the struct to be iterated over
-impl Iterator for RR {
+impl Iterator for DimRange {
     // Define the type of the object we're returning from the iterator
-    type Item = u32;
+    type Item = i32;
     // This is the general signature of the next function
     // This function has to be defined for the iterator trait
     fn next(&mut self) -> Option<Self::Item> {
-        let current = self.current;
+        let current;
 
-        // If this is a forward range step forward
-        if self.start < self.stop {
-            if self.current < self.stop {
-                self.current += 1;
+        if self.descend {
+            if self.current > 0 {
+                current = self.current;
+                self.current -= 1;
                 return Some(current);
             }
         } else {
-            // Otherwise step backwards
-            if self.current > self.stop {
-                self.current -= 1;
+            if self.current < self.max {
+                current = self.current;
+                self.current += 1;
                 return Some(current);
             }
         }
@@ -57,30 +57,30 @@ fn main() {
     let img = image::open(args.input).expect("Failed to open image");
 
     let (width, height) = img.dimensions();
-    let buffer = img.to_rgb8();
+    let _buffer = img.to_rgb8();
 
     let mut out_buffer: ImageBuffer<Rgba<u8>, Vec<u8>> = ImageBuffer::new(width, height);
 
     let mut out_vec: Vec<Rgba<u8>> = Vec::new();
 
-    let y_iter: RR;
-    let x_iter: RR;
+    let y_iter: DimRange;
+    let x_iter: DimRange;
 
-    y_iter = RR {
-        start: 0,
+    y_iter = DimRange {
+        max: height as i32,
         current: 0,
-        stop: height,
+        descend: false,
     };
-    x_iter = RR {
-        start: 0,
+    x_iter = DimRange {
+        max: width as i32,
         current: 0,
-        stop: width,
+        descend: false,
     };
 
     for y in y_iter {
         let mut current_buffer: Vec<image::Rgba<u8>> = vec![];
         for x in x_iter {
-            let pixel = img.get_pixel(x, y);
+            let pixel = img.get_pixel(x as u32, y as u32);
             if luma_from_pixel(pixel) > args.threshold {
                 current_buffer.push(pixel);
             } else {
