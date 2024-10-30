@@ -61,7 +61,7 @@ fn main() {
 
     let mut out_buffer: ImageBuffer<Rgba<u8>, Vec<u8>> = ImageBuffer::new(width, height);
 
-    let mut out_vec: Vec<Rgba<u8>> = Vec::new();
+    let mut out_vec: Vec<Rgba<u8>> = Vec::<Rgba<u8>>::with_capacity((width*height) as usize);
 
     let y_iter: DimRange;
     let x_iter: DimRange;
