@@ -1,7 +1,7 @@
 // #![allow(unused_imports, unused_variables)]
+use clap::Parser;
 use image::{self, GenericImageView, ImageBuffer, Rgba};
 use std::cmp::Ordering;
-use clap::{builder::Str, Parser};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -13,7 +13,43 @@ struct Args {
     #[arg(short, long, default_value = "output.png")]
     output: String,
     #[arg(short, long, default_value = "right")]
-    direction: String
+    direction: String,
+}
+
+// This is needed otherwise trying to use the struct in nested
+//      loops results in a move error
+#[derive(Clone, Copy)]
+// Simple reversible range
+struct RR {
+    start: u32,
+    current: u32,
+    stop: u32,
+}
+// Allow the struct to be iterated over
+impl Iterator for RR {
+    // Define the type of the object we're returning from the iterator
+    type Item = u32;
+    // This is the general signature of the next function
+    // This function has to be defined for the iterator trait
+    fn next(&mut self) -> Option<Self::Item> {
+        let current = self.current;
+
+        // If this is a forward range step forward
+        if self.start < self.stop {
+            if self.current < self.stop {
+                self.current += 1;
+                return Some(current);
+            }
+        } else {
+            // Otherwise step backwards
+            if self.current > self.stop {
+                self.current -= 1;
+                return Some(current);
+            }
+        }
+        // If we reached the stop in whichever direction we return None
+        None
+    }
 }
 
 fn main() {
@@ -27,32 +63,36 @@ fn main() {
 
     let mut out_vec: Vec<Rgba<u8>> = Vec::new();
 
-    let min_x: u32;
-    let min_y: u32;
-    let max_x: u32;
-    let max_y: u32;
+    let y_iter: RR;
+    let x_iter: RR;
 
-    min_x = 0;
-    max_x = width;
-    min_y = 0;
-    max_y = height;
+    y_iter = RR {
+        start: 0,
+        current: 0,
+        stop: height,
+    };
+    x_iter = RR {
+        start: 0,
+        current: 0,
+        stop: width,
+    };
 
-    for y in min_y..max_y{
+    for y in y_iter {
         let mut current_buffer: Vec<image::Rgba<u8>> = vec![];
-        for x in min_x..max_x{
+        for x in x_iter {
             let pixel = img.get_pixel(x, y);
-            if luma_from_pixel(pixel) > args.threshold{
+            if luma_from_pixel(pixel) > args.threshold {
                 current_buffer.push(pixel);
             } else {
                 if current_buffer.len() > 0 {
-                    current_buffer.sort_by(|&a, &b| comp_pixel(a, b));               
-                    out_vec.append(&mut current_buffer);     
+                    current_buffer.sort_by(|&a, &b| comp_pixel(a, b));
+                    out_vec.append(&mut current_buffer);
                 }
                 out_vec.push(pixel);
             }
         }
-        current_buffer.sort_by(|&a, &b| comp_pixel(a, b));               
-        out_vec.append(&mut current_buffer);     
+        current_buffer.sort_by(|&a, &b| comp_pixel(a, b));
+        out_vec.append(&mut current_buffer);
     }
 
     for (i, pixel) in out_buffer.pixels_mut().enumerate() {
