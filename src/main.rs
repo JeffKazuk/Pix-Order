@@ -35,11 +35,11 @@ impl Iterator for DimRange {
         let current;
 
         if self.descend {
-            if self.current >= 0 {
-                current = self.current;
+            current = self.current;
+            if self.current > 0 {
                 self.current -= 1;
-                return Some(current);
             }
+            return Some(current);
         } else {
             if self.current < self.max {
                 current = self.current;
